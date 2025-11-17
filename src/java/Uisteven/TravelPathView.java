@@ -10,6 +10,10 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
+import java.util.List;
+import model.WeatherData;
+import model.PackingTipGenerator;
 
 /**
  * Minimal skeleton of TravelPathView.
@@ -35,8 +39,8 @@ public class TravelPathView extends JPanel implements ActionListener, PropertyCh
     private final JButton deletePastTravelButton = new JButton("Delete");
 
     // 中间 Itinerary + Notes
-    private final DefaultListModel<String> stopsListModel = new DefaultListModel<>();
-    private final JList<String> stopsList = new JList<>(stopsListModel);
+    private final DefaultListModel<TravelPathState.ItineraryStop> stopsListModel = new DefaultListModel<>();
+    private final JList<TravelPathState.ItineraryStop> stopsList = new JList<>(stopsListModel);
 
     private final JButton addStopButton = new JButton("Add stop");
     private final JButton removeStopButton = new JButton("Remove stop");
@@ -119,6 +123,8 @@ public class TravelPathView extends JPanel implements ActionListener, PropertyCh
         stopsPanel.add(stopsTitleLabel, BorderLayout.NORTH);
 
         stopsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        stopsListModel.addElement(new TravelPathState.ItineraryStop("Toronto", LocalDate.now(), ""));
+        stopsListModel.addElement(new TravelPathState.ItineraryStop("Montreal", LocalDate.now().plusDays(1), ""));
         stopsPanel.add(new JScrollPane(stopsList), BorderLayout.CENTER);
 
         JPanel stopsButtonPanel = new JPanel();
@@ -273,7 +279,14 @@ public class TravelPathView extends JPanel implements ActionListener, PropertyCh
         stopsList.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                // 这里以后可以把 selected index 写回 viewModel
+                if (!e.getValueIsAdjusting()) {
+                    TravelPathState.ItineraryStop selected = stopsList.getSelectedValue();
+                    if (selected != null) {
+                        notesArea.setText(selected.getNotes());
+                    } else {
+                        notesArea.setText("");
+                    }
+                }
             }
         });
 
@@ -297,6 +310,39 @@ public class TravelPathView extends JPanel implements ActionListener, PropertyCh
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // 以后你可以在这里 switch e.getActionCommand()，然后调 controller
+        String cmd = e.getActionCommand();
+
+        switch (cmd) {
+            case "updateNotes": {
+                // User Story 6: 把 notesArea 里的内容写回当前选中的 stop
+                TravelPathState.ItineraryStop selected = stopsList.getSelectedValue();
+                if (selected != null) {
+                    selected.setNotes(notesArea.getText());
+                    // 重绘列表，让 ItineraryStop.toString() 里的 📌 立刻更新
+                    stopsList.repaint();
+                }
+                break;
+            }
+            case "Search & Weather": {
+                // User Story 7 Demo:
+                // 以后这里应该改成调用真正的 SearchDestination / Weather Use Case。
+                // 现在先用一个 demo 的天气，演示根据天气生成 packing tips。
+                WeatherData demoWeather = new WeatherData(2.0, "light rain", 3.0, 0.0);
+                List<String> tips = PackingTipGenerator.generate(demoWeather);
+
+                StringBuilder sb = new StringBuilder("Weather-based packing tips:\n");
+                for (String tip : tips) {
+                    sb.append("• ").append(tip).append("\n");
+                }
+                clothingSuggestionArea.setText(sb.toString());
+                break;
+            }
+            default:
+                // 其他按钮暂时还没接 Use Case，就先弹个 TODO
+                JOptionPane.showMessageDialog(this,
+                        "Clicked: " + cmd + "\nController not wired yet.",
+                        "TODO",
+                        JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 }
