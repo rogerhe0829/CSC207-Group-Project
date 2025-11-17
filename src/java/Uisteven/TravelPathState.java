@@ -183,6 +183,14 @@ public class TravelPathState {
         public void setNotes(String notes) {
             this.notes = notes;
         }
+        public String toString() {
+            String base = (day != null ? day.toString() + " – " : "") + city;
+            if (notes != null && !notes.isEmpty()) {
+                // 选了这个 stop 并且写过 notes，就在列表里显示一个 📌 提示
+                return base + "  📌";
+            }
+            return base;
+        }
     }
 
     public static class ForecastDay {
