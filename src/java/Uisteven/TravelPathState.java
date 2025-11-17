@@ -1,7 +1,7 @@
 package Uisteven;
 
 // src/main/java/interface_adapter/travelpath/TravelPathState.java
-package interface_adapter.travelpath;
+
 
 import java.time.LocalDate;
 import java.util.ArrayList;
