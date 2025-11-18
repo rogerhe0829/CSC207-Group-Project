@@ -1,29 +1,29 @@
 package Uisteven;
 
-// src/main/java/interface_adapter/travelpath/TravelPathViewModel.java
-package interface_adapter.travelpath;
-
-import interface_adapter.ViewModel;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
 /**
- * TravelPath 的 ViewModel。
+ * ViewModel for TravelPath: wraps a TravelPathState and notifies listeners on changes.
  */
-public class TravelPathViewModel extends ViewModel<TravelPathState> {
+public class TravelPathViewModel {
 
-    public static final String VIEW_NAME = "travel path";
+    private final PropertyChangeSupport support = new PropertyChangeSupport(this);
+    private TravelPathState state = new TravelPathState();
 
-    public TravelPathViewModel() {
-        super(VIEW_NAME);
-        setState(new TravelPathState());
-    }
+    public TravelPathViewModel() {}
 
-    @Override
     public TravelPathState getState() {
-        return super.getState();
+        return state;
     }
 
-    @Override
-    public void setState(TravelPathState state) {
-        super.setState(state);
+    public void setState(TravelPathState newState) {
+        TravelPathState oldState = this.state;
+        this.state = newState;
+        support.firePropertyChange("state", oldState, newState);
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        support.addPropertyChangeListener(listener);
     }
 }
