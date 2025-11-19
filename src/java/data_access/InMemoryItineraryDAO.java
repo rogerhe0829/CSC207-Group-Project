@@ -11,7 +11,7 @@ import java.util.*;
  */
 public class InMemoryItineraryDAO implements ItineraryDataAccessInterface {
 
-    // key: username, value: 这个用户所有的行程列表
+    // key: username, value: This user's complete travel list
     private final Map<String, List<SavedItinerary>> data = new HashMap<>();
 
     public InMemoryItineraryDAO() {
